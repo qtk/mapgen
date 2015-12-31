@@ -58,7 +58,7 @@ class VoronoiPlot:
                 return 'land'
         elif shared_points_sea:
             if not regen and self.beach < 3:
-                if (shared_points_beach or shared_points_land) or np.random.randint(0, 320) == 1:
+                if (shared_points_beach or shared_points_land) or np.random.randint(0, 200) == 1:
                     self.beach += 1
                     print('beach')
                     return 'beach'
@@ -117,6 +117,7 @@ class VoronoiPlot:
                 plt.fill(*zip(*tile[0]), color='yellow')
             elif tile[1] == 'land':
                 plt.fill(*zip(*tile[0]), color='green')
+        plt.savefig('with-lines.png')
 
         plt.figure(1)
         plt.axis([0, 228.624, 0, 201])
@@ -129,10 +130,11 @@ class VoronoiPlot:
                 plt.fill(*zip(*tile[0]), color='yellow')
             elif tile[1] == 'land':
                 plt.fill(*zip(*tile[0]), color='green')
+        plt.savefig('without-lines.png')
 
 
 if __name__ == '__main__':
-    plot = VoronoiPlot()
+    plot = VoronoiPlot(777)
     plot.generate()
     plt.axis([0, 228.624, 0, 201])  # size is weird because it will be filled up by hexagons
     print(plot.beach)
