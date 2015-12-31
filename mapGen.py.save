@@ -1,0 +1,28 @@
+#import scipy
+import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+from scipy.spatial import Voronoi, voronoi_plot_2d
+import random
+from time import sleep
+
+np.random.seed(1)
+qhull_options="QJ"
+
+# generate points of voronoi diagram
+points = np.empty( [256,2], np.int32)
+i  = 0
+for x in range (16):
+	for y in range(16):
+		xcoord = np.random.random_integers( (x*10-5), (x*10+5) ) + 5
+		ycoord = np.random.random_integers((y*10-5), (y*10+5)) + 5 
+		coords = np.array( [[xcoord, ycoord]], np.int32 )
+		points[i] = coords
+		i += 1
+####################################		
+vor = Voronoi(points)
+vor_plot = voronoi_plot_2d(vor)
+
+# array of 
+
