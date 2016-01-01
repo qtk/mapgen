@@ -9,14 +9,21 @@ def random_numbers():  # generates the input points for the voronoi diagram
     numbers = []
     for x in range(0, 22):  # first, it fills the area with points in a grid.
         for y in range(0, 22):
-            ysize = x * 12  # + np.random.randint(-6, 6)
+            ysize = x * 11  # + np.random.randint(-6, 6)
             if x % 2 == 0:  # every even row is moved to create hexagon-like points
-                xsize = y * 12  # + np.random.randint(-6, 6)  # points are slightly moved around to create quasi-randomness
+                xsize = y * 11  # + np.random.randint(-6, 6)  # points are slightly moved around to create quasi-randomness
             else:
-                xsize = y * 12 + 6  # + np.random.randint(-6, 6)
+                xsize = y * 11 + 5.5  # + np.random.randint(-6, 6)
             pair = [xsize, ysize]
             numbers.append(pair)
     return numbers
+
+
+def not_in_shared_points(shared_points, coord):
+    for item in shared_points:
+        if item[0] == coord[0] and item[1] == coord[1]:
+            return False
+    return True
 
 
 class VoronoiPlot:
@@ -29,52 +36,43 @@ class VoronoiPlot:
         self.vor = Voronoi(self.coords)
         voronoi_plot_2d(self.vor)
 
-        # set background to lightblue, to make te border sea.
-        ax = plt.gca()
-        ax.set_axis_bgcolor('blue')
-
     def adjacent_tiles(self, polygon, regen=0):
+        shared_points = []
         shared_points_sea = 0
         shared_points_land = 0
         shared_points_beach = 0
         for tile in self.index:
             for i in tile[0]:
                 for j in polygon:
-                    if i[0] == j[0] and i[1] == j[1]:  # coordinates are the same
+                    if i[0] == j[0] and i[1] == j[1] and not_in_shared_points(shared_points,
+                                                                              i):  # coordinates are the same
+                        shared_points.append(i)
                         if tile[1] == 'sea' or tile[1] == 'border':
                             shared_points_sea += 1
                         elif tile[1] == 'land':
                             shared_points_land += 1
                         elif tile[1] == 'beach':
                             shared_points_beach += 1
-        print(u"shared with: land {0:d} | sea: {1:d} | beach: {2:d}".format(shared_points_land, shared_points_sea,
-                                                                            shared_points_beach))
-        if shared_points_sea == 0 and (shared_points_land or shared_points_beach):
-            if np.random.randint(0, 50) == 1:
-                print('lake')
-                return 'lake'
+        print(
+                u"shared with: land {0:d} | sea: {1:d} | beach: {2:d}".format(
+                        shared_points_land,
+                        shared_points_sea,
+                        shared_points_beach))
+
+        if shared_points_sea == 6 or (shared_points_beach == 0 and shared_points_land == 0):
+            if not regen and np.random.randint(0, 2):
+                print('is beach')
+                return 'beach'
             else:
-                print('land')
-                return 'land'
-        elif shared_points_sea:
-            if not regen and self.beach < 3:
-                if (shared_points_beach or shared_points_land) or np.random.randint(0, 160) == 1:
-                    self.beach += 1
-                    print('beach')
-                    return 'beach'
-                else:
-                    print('sea')
-                    return 'sea'
-            else:
-                if shared_points_beach or shared_points_land:
-                    print('beach')
-                    return 'beach'
-                else:
-                    print('sea')
-                    return 'sea'
-        else:
-            print('sea')
-            return 'sea'
+                print('is sea')
+                return 'sea'
+        if (shared_points_land == 6 or shared_points_beach == 6) and shared_points_sea == 0:
+            print('is land')
+            return 'land'
+        if shared_points_beach >= 1:
+            print('is beach')
+            return 'beach'
+
 
     @staticmethod
     def is_border(polygon):
@@ -93,8 +91,6 @@ class VoronoiPlot:
                 else:
                     self.index.append([polygon, 'border'])
         self.__regenerate()
-        self.__regenerate()
-        self.__regenerate()
         self.__color()
 
     def __regenerate(self):
@@ -106,18 +102,22 @@ class VoronoiPlot:
 
     def __color(self):
         # colors each tile according to the surface type
-        plt.figure(2)
-        plt.axis([0, 228.624, 0, 201])
-        for tile in self.index:
-            if tile[1] == 'border' or tile[1] == 'sea':
-                plt.fill(*zip(*tile[0]), color='blue')
-            if tile[1] == 'lake':
-                plt.fill(*zip(*tile[0]), color='lightblue')
-            elif tile[1] == 'beach':
-                plt.fill(*zip(*tile[0]), color='yellow')
-            elif tile[1] == 'land':
-                plt.fill(*zip(*tile[0]), color='green')
-        plt.savefig('without-lines.png')
+        # plt.figure(2)
+        # plt.axis([0, 228.624, 0, 201])
+        # for tile in self.index:
+        #    if tile[1] == 'border' or tile[1] == 'sea':
+        #        plt.fill(*zip(*tile[0]), color='blue')
+        #    if tile[1] == 'lake':
+        #        plt.fill(*zip(*tile[0]), color='lightblue')
+        #    elif tile[1] == 'beach':
+        #        plt.fill(*zip(*tile[0]), color='yellow')
+        #    elif tile[1] == 'land':
+        #        plt.fill(*zip(*tile[0]), color='green')
+        # plt.savefig('without-lines.png')
+
+        # set background to lightblue, to make te border sea.
+        # ax = plt.gca()
+        # ax.set_axis_bgcolor('blue')
 
         plt.figure(1)
         plt.axis([0, 228.624, 0, 201])
@@ -132,9 +132,13 @@ class VoronoiPlot:
                 plt.fill(*zip(*tile[0]), color='green')
         plt.savefig('with-lines.png')
 
+        # set background to lightblue, to make te border sea.
+        ax = plt.gca()
+        ax.set_axis_bgcolor('blue')
+
 
 if __name__ == '__main__':
-    plot = VoronoiPlot()
+    plot = VoronoiPlot(1337)
     plot.generate()
     plt.axis([0, 228.624, 0, 201])  # size is weird because it will be filled up by hexagons
     print(plot.beach)
