@@ -9,11 +9,11 @@ def random_numbers():  # generates the input points for the voronoi diagram
     numbers = []
     for x in range(0, 22):  # first, it fills the area with points in a grid.
         for y in range(0, 22):
-            ysize = x * 12 + np.random.randint(-6, 6)
+            ysize = x * 12  # + np.random.randint(-6, 6)
             if x % 2 == 0:  # every even row is moved to create hexagon-like points
-                xsize = y * 12 + np.random.randint(-6, 6)  # points are slightly moved around to create quasi-randomness
+                xsize = y * 12  # + np.random.randint(-6, 6)  # points are slightly moved around to create quasi-randomness
             else:
-                xsize = y * 12 + 6 + np.random.randint(-6, 6)
+                xsize = y * 12 + 6  # + np.random.randint(-6, 6)
             pair = [xsize, ysize]
             numbers.append(pair)
     return numbers
